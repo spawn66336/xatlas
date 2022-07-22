@@ -2482,6 +2482,8 @@ public:
 		HashMap<Vector3> positionToVertexMap(MemTag::Default, vertexCount);
 		for (uint32_t i = 0; i < vertexCount; i++)
 			positionToVertexMap.add(m_positions[i]);
+
+
 		Array<uint32_t> colocals(MemTag::MeshColocals);
 		m_nextColocalVertex.resize(vertexCount);
 		m_nextColocalVertex.fillBytes(0xff);
@@ -9064,6 +9066,8 @@ AddMeshError AddMesh(Atlas *atlas, const MeshDecl &meshDecl, uint32_t meshCountH
 		meshFlags |= internal::MeshFlags::HasNormals;
 	if (meshDecl.faceMaterialData)
 		meshFlags |= internal::MeshFlags::HasMaterials;
+
+	//创建用于生成uv的Mesh对象，将添加的MeshDecl中的顶点、法线、纹理坐标誊写至Mesh对象中
 	internal::Mesh *mesh = XA_NEW_ARGS(internal::MemTag::Mesh, internal::Mesh, meshDecl.epsilon, meshDecl.vertexCount, indexCount / 3, meshFlags, ctx->meshes.size());
 	for (uint32_t i = 0; i < meshDecl.vertexCount; i++) {
 		internal::Vector3 normal(0.0f);
@@ -9087,6 +9091,8 @@ AddMeshError AddMesh(Atlas *atlas, const MeshDecl &meshDecl, uint32_t meshCountH
 	uint32_t warningCount = 0;
 	internal::Array<uint32_t> triIndices;
 	internal::Triangulator triangulator;
+
+
 	for (uint32_t face = 0; face < faceCount; face++) {
 		// Decode face indices.
 		const uint32_t faceVertexCount = meshDecl.faceVertexCount ? (uint32_t)meshDecl.faceVertexCount[face] : 3;
@@ -9104,7 +9110,7 @@ AddMeshError AddMesh(Atlas *atlas, const MeshDecl &meshDecl, uint32_t meshCountH
 				polygon[i] = face * faceVertexCount + i;
 			}
 		}
-		// Ignore faces with degenerate or zero length edges.
+		// 忽略退化三角面或边长为0的三角面
 		bool ignore = false;
 		for (uint32_t i = 0; i < faceVertexCount; i++) {
 			const uint32_t index1 = polygon[i];
@@ -9124,7 +9130,7 @@ AddMeshError AddMesh(Atlas *atlas, const MeshDecl &meshDecl, uint32_t meshCountH
 				break;
 			}
 		}
-		// Ignore faces with any nan vertex attributes.
+		// 忽略顶点信息中（Pos、Normal、UV）含有NaN值的面
 		if (!ignore) {
 			for (uint32_t i = 0; i < faceVertexCount; i++) {
 				const internal::Vector3 &pos = mesh->position(polygon[i]);
@@ -9154,7 +9160,7 @@ AddMeshError AddMesh(Atlas *atlas, const MeshDecl &meshDecl, uint32_t meshCountH
 				}
 			}
 		}
-		// Triangulate if necessary.
+		// 若有必要对多边形进行三角面化
 		triIndices.clear();
 		if (faceVertexCount == 3) {
 			triIndices.push_back(polygon[0]);
@@ -9163,7 +9169,7 @@ AddMeshError AddMesh(Atlas *atlas, const MeshDecl &meshDecl, uint32_t meshCountH
 		} else {
 			triangulator.triangulatePolygon(mesh->positions(), internal::ConstArrayView<uint32_t>(polygon, faceVertexCount), triIndices);
 		}
-		// Check for zero area faces.
+		// 忽略三角面面积为0的面
 		if (!ignore) {
 			for (uint32_t i = 0; i < triIndices.size(); i += 3) {
 				const internal::Vector3 &a = mesh->position(triIndices[i + 0]);
@@ -9178,14 +9184,15 @@ AddMeshError AddMesh(Atlas *atlas, const MeshDecl &meshDecl, uint32_t meshCountH
 				}
 			}
 		}
-		// User face ignore.
+		// 响应用户指定的忽略面
 		if (meshDecl.faceIgnoreData && meshDecl.faceIgnoreData[face])
 			ignore = true;
-		// User material.
+		// 用户指定的面材质索引
 		uint32_t material = UINT32_MAX;
 		if (meshDecl.faceMaterialData)
 			material = meshDecl.faceMaterialData[face];
-		// Add the face(s).
+
+		//向Mesh对象中添加三角面，并生成边表
 		for (uint32_t i = 0; i < triIndices.size(); i += 3) {
 			mesh->addFace(&triIndices[i], ignore, material);
 			if (meshPolygonMapping)
