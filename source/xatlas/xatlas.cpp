@@ -2875,23 +2875,30 @@ struct MeshFaceGroups
 		const uint32_t n = m_mesh->faceCount();
 		m_nextFace.resize(n);
 		for (;;) {
-			// Find an unassigned face.
+			// 查找一个未分配的三角面
 			uint32_t face = UINT32_MAX;
 			for (uint32_t f = firstUnassignedFace; f < n; f++) {
-				if (m_groups[f] == kInvalid && !m_mesh->isFaceIgnored(f)) {
+				if (m_groups[f] == kInvalid && !m_mesh->isFaceIgnored(f)) 
+				{//忽略被遗弃的面
 					face = f;
 					firstUnassignedFace = f + 1;
 					break;
 				}
 			}
+
+			//所有的面均分配完则退出，算法完成
 			if (face == UINT32_MAX)
 				break; // All faces assigned to a group (except ignored faces).
+
 			m_groups[face] = group;
+			//用于组成同组面链表
 			m_nextFace[face] = UINT32_MAX;
 			m_firstFace.push_back(face);
 			growFaces.clear();
 			growFaces.push_back(face);
+
 			uint32_t prevFace = face, groupFaceCount = 1;
+
 			// Find faces connected to the face and assign them to the same group as the face, unless they are already assigned to another group.
 			for (;;) {
 				if (growFaces.isEmpty())
@@ -2899,17 +2906,25 @@ struct MeshFaceGroups
 				const uint32_t f = growFaces.back();
 				growFaces.pop_back();
 				const uint32_t material = m_mesh->faceMaterial(f);
-				for (Mesh::FaceEdgeIterator edgeIt(m_mesh, f); !edgeIt.isDone(); edgeIt.advance()) {
+
+				//查找面各半边的反半边，并基于反半边获取其所在面，将此面合并为一组
+				for (Mesh::FaceEdgeIterator edgeIt(m_mesh, f); !edgeIt.isDone(); edgeIt.advance()) 
+				{
 					const uint32_t oppositeEdge = m_mesh->findEdge(edgeIt.vertex1(), edgeIt.vertex0());
+
+					//未找到反半边，说明此边为边界边，不与其它面邻接
 					if (oppositeEdge == UINT32_MAX)
 						continue; // Boundary edge.
 					const uint32_t oppositeFace = meshEdgeFace(oppositeEdge);
+
+					//忽略被遗弃、不同材质、已打组的面
 					if (m_mesh->isFaceIgnored(oppositeFace))
 						continue; // Don't add ignored faces to group.
 					if (m_mesh->faceMaterial(oppositeFace) != material)
 						continue; // Different material.
 					if (m_groups[oppositeFace] != kInvalid)
 						continue; // Connected face is already assigned to another group.
+
 					m_groups[oppositeFace] = group;
 					m_nextFace[oppositeFace] = UINT32_MAX;
 					if (prevFace != UINT32_MAX)
@@ -2919,6 +2934,7 @@ struct MeshFaceGroups
 					growFaces.push_back(oppositeFace);
 				}
 			}
+			//一组中面总数
 			m_faceCount.push_back(groupFaceCount);
 			group++;
 			XA_ASSERT(group < kInvalid);
@@ -5174,6 +5190,7 @@ struct PlanarCharts
 	{
 		const uint32_t faceCount = m_data.mesh->faceCount();
 		// Precompute regions of coplanar incident faces.
+		// m_regionFirstFace 与 m_nextRegionFace 构成了双向链表
 		m_regionFirstFace.clear();
 		m_nextRegionFace.resize(faceCount);
 		m_faceToRegionId.resize(faceCount);
@@ -5181,6 +5198,8 @@ struct PlanarCharts
 			m_nextRegionFace[f] = f;
 			m_faceToRegionId[f] = UINT32_MAX;
 		}
+
+		// 以共面标准划分区域
 		Array<uint32_t> faceStack;
 		faceStack.reserve(min(faceCount, 16u));
 		uint32_t regionCount = 0;
@@ -5206,7 +5225,7 @@ struct PlanarCharts
 					if (m_data.isFaceInChart.get(oface))
 						continue; // Already in a chart.
 					if (!equal(dot(m_data.faceNormals[face], m_data.faceNormals[oface]), 1.0f, kEpsilon))
-						continue; // Not coplanar.
+						continue; // 不共面忽略
 					const uint32_t next = m_nextRegionFace[face];
 					m_nextRegionFace[face] = oface;
 					m_nextRegionFace[oface] = next;
@@ -5240,6 +5259,7 @@ struct PlanarCharts
 		}
 #endif
 		// Precompute planar region areas.
+		// 计算各共面区域的大小
 		m_regionAreas.resize(regionCount);
 		m_regionAreas.zeroOutMemory();
 		for (uint32_t f = 0; f < faceCount; f++) {
@@ -5261,9 +5281,11 @@ struct PlanarCharts
 						continue; // Ignore mesh boundary edges.
 					const uint32_t oface = it.oppositeFace();
 					if (m_faceToRegionId[oface] == region)
-						continue; // Ignore internal edges.
+						continue; // 忽略区域内边
 					const float angle = m_data.edgeDihedralAngles[it.edge()];
+
 					if (angle > 0.0f && angle < FLT_MAX) { // FLT_MAX on boundaries.
+						//区域边界发现邻接面 < 90.0f
 						createChart = false;
 						break;
 					}
@@ -7773,9 +7795,12 @@ static void runMeshComputeChartsTask(void *groupUserData, void *taskUserData)
 	XA_PROFILE_START(computeChartsThread)
 	// Create face groups.
 	XA_PROFILE_START(createFaceGroups)
+
+	//将模型按邻接面分组
 	MeshFaceGroups *meshFaceGroups = XA_NEW_ARGS(MemTag::Mesh, MeshFaceGroups, args->sourceMesh);
 	meshFaceGroups->compute();
 	const uint32_t chartGroupCount = meshFaceGroups->groupCount();
+
 	XA_PROFILE_END(createFaceGroups)
 	if (groupArgs->progress->cancel)
 		goto cleanup;
@@ -7900,6 +7925,7 @@ public:
 #endif
 		// Progress is per-face x 2 (1 for chart faces, 1 for parameterized chart faces).
 		const uint32_t meshCount = m_meshes.size();
+		//统计所有模型的总面数
 		uint32_t totalFaceCount = 0;
 		for (uint32_t i = 0; i < meshCount; i++)
 			totalFaceCount += m_meshes[i]->faceCount();
@@ -7920,7 +7946,8 @@ public:
 		m_meshChartGroups.runCtors();
 		m_invalidMeshGeometry.resize(meshCount);
 		m_invalidMeshGeometry.runCtors();
-		// One task per mesh.
+
+		// 每个模型一个Task
 		Array<MeshComputeChartsTaskArgs> taskArgs;
 		taskArgs.resize(meshCount);
 		for (uint32_t i = 0; i < meshCount; i++) {
