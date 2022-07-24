@@ -5099,6 +5099,7 @@ struct OriginalUvCharts
 			chart.faceCount = 1;
 			m_chartFaces.push_back(f);
 			m_data.isFaceInChart.set(f);
+			//迭代地将邻接UV的面放入Chart
 			floodfillFaces(chart);
 			m_charts.push_back(chart);
 		}
@@ -5275,10 +5276,11 @@ struct PlanarCharts
 			const uint32_t firstRegionFace = m_regionFirstFace[region];
 			uint32_t face = firstRegionFace;
 			bool createChart = true;
-			do {
-				for (Mesh::FaceEdgeIterator it(m_data.mesh, face); !it.isDone(); it.advance()) {
+			do {//对当前区域的各三角面进行遍历
+				for (Mesh::FaceEdgeIterator it(m_data.mesh, face); !it.isDone(); it.advance()) {//遍历区域面的各边
 					if (it.isBoundary())
-						continue; // Ignore mesh boundary edges.
+						continue; // 忽略区域边缘面
+
 					const uint32_t oface = it.oppositeFace();
 					if (m_faceToRegionId[oface] == region)
 						continue; // 忽略区域内边
@@ -5290,13 +5292,15 @@ struct PlanarCharts
 						break;
 					}
 				}
+
 				if (!createChart)
 					break;
 				face = m_nextRegionFace[face];
 			}
 			while (face != firstRegionFace);
+
 			// Create a chart.
-			if (createChart) {
+			if (createChart) {//将区域面纳入Chart
 				Chart chart;
 				chart.firstFace = m_chartFaces.size();
 				chart.faceCount = 0;
@@ -5359,6 +5363,7 @@ struct ClusteredCharts
 	void compute()
 	{
 		const uint32_t faceCount = m_data.mesh->faceCount();
+		//记录前述UvChart、PlanarChart分析后剩余的面
 		m_facesLeft = 0;
 		for (uint32_t i = 0; i < faceCount; i++) {
 			if (!m_data.isFaceInChart.get(i))
@@ -5652,6 +5657,7 @@ private:
 		chart->id = (int)m_charts.size();
 		m_charts.push_back(chart);
 		// Pick a face not used by any chart yet, belonging to the largest planar region.
+		// 找到最大的没被PlanarChart利用的平面区域
 		chart->seed = 0;
 		float largestArea = 0.0f;
 		for (uint32_t f = 0; f < m_data.mesh->faceCount(); f++) {
@@ -5761,6 +5767,7 @@ private:
 		const uint32_t oldFaceCount = chart->faces.size();
 		const bool firstFace = oldFaceCount == 0;
 		// Append the face and any coplanar connected faces to the chart faces array.
+		// 将当前三角面关联Region的所有面
 		chart->faces.push_back(face);
 		uint32_t coplanarFace = m_planarCharts.nextRegionFace(face);
 		while (coplanarFace != face) {
@@ -5779,6 +5786,7 @@ private:
 			basis.bitangent = cross(basis.normal, basis.tangent);
 		} else {
 			// Use best fit normal.
+			// 线性最小二乘法查找最佳投影平面
 			if (!computeChartBasis(chart, &basis)) {
 				chart->faces.resize(oldFaceCount);
 				return false;
@@ -5788,6 +5796,7 @@ private:
 		}
 		if (!firstFace) {
 			// Compute orthogonal parameterization and check that it is valid.
+			// 基于上述Basis计算Chart各顶点纹理坐标
 			parameterizeChart(chart);
 			for (uint32_t i = oldFaceCount; i < faceCount; i++)
 				m_faceCharts[chart->faces[i]] = chart->id;

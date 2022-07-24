@@ -34,6 +34,7 @@ Copyright NVIDIA Corporation 2006 -- Ignacio Castano <icastano@nvidia.com>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "Unity/IUnityInterface.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -223,23 +224,23 @@ typedef void *(*xatlasReallocFunc)(void *, size_t);
 typedef void (*xatlasFreeFunc)(void *);
 typedef int (*xatlasPrintFunc)(const char *, ...);
 
-XATLAS_API xatlasAtlas *xatlasCreate();
-XATLAS_API void xatlasDestroy(xatlasAtlas *atlas);
-XATLAS_API xatlasAddMeshError xatlasAddMesh(xatlasAtlas *atlas, const xatlasMeshDecl *meshDecl, uint32_t meshCountHint);
-XATLAS_API void xatlasAddMeshJoin(xatlasAtlas *atlas);
-XATLAS_API xatlasAddMeshError xatlasAddUvMesh(xatlasAtlas *atlas, const xatlasUvMeshDecl *decl);
-XATLAS_API void xatlasComputeCharts(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions);
-XATLAS_API void xatlasPackCharts(xatlasAtlas *atlas, const xatlasPackOptions *packOptions);
-XATLAS_API void xatlasGenerate(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions, const xatlasPackOptions *packOptions);
-XATLAS_API void xatlasSetProgressCallback(xatlasAtlas *atlas, xatlasProgressFunc progressFunc, void *progressUserData);
-XATLAS_API void xatlasSetAlloc(xatlasReallocFunc reallocFunc, xatlasFreeFunc freeFunc);
-XATLAS_API void xatlasSetPrint(xatlasPrintFunc print, bool verbose);
-XATLAS_API const char *xatlasAddMeshErrorString(xatlasAddMeshError error);
-XATLAS_API const char *xatlasProgressCategoryString(xatlasProgressCategory category);
-XATLAS_API void xatlasMeshDeclInit(xatlasMeshDecl *meshDecl);
-XATLAS_API void xatlasUvMeshDeclInit(xatlasUvMeshDecl *uvMeshDecl);
-XATLAS_API void xatlasChartOptionsInit(xatlasChartOptions *chartOptions);
-XATLAS_API void xatlasPackOptionsInit(xatlasPackOptions *packOptions);
+UNITY_INTERFACE_EXPORT xatlasAtlas *  UNITY_INTERFACE_API xatlasCreate();
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasDestroy(xatlasAtlas *atlas);
+xatlasAddMeshError UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddMesh(xatlasAtlas *atlas, const xatlasMeshDecl *meshDecl, uint32_t meshCountHint);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddMeshJoin(xatlasAtlas *atlas);
+xatlasAddMeshError UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddUvMesh(xatlasAtlas *atlas, const xatlasUvMeshDecl *decl);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasComputeCharts(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasPackCharts(xatlasAtlas *atlas, const xatlasPackOptions *packOptions);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasGenerate(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions, const xatlasPackOptions *packOptions);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasSetProgressCallback(xatlasAtlas *atlas, xatlasProgressFunc progressFunc, void *progressUserData);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasSetAlloc(xatlasReallocFunc reallocFunc, xatlasFreeFunc freeFunc);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasSetPrint(xatlasPrintFunc print, bool verbose);
+UNITY_INTERFACE_EXPORT const char *  UNITY_INTERFACE_API xatlasAddMeshErrorString(xatlasAddMeshError error);
+UNITY_INTERFACE_EXPORT const char *  UNITY_INTERFACE_API xatlasProgressCategoryString(xatlasProgressCategory category);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasMeshDeclInit(xatlasMeshDecl *meshDecl);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasUvMeshDeclInit(xatlasUvMeshDecl *uvMeshDecl);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasChartOptionsInit(xatlasChartOptions *chartOptions);
+void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasPackOptionsInit(xatlasPackOptions *packOptions);
 
 #ifdef __cplusplus
 } // extern "C"
