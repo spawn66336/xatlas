@@ -225,7 +225,8 @@ typedef void (*xatlasFreeFunc)(void *);
 typedef int (*xatlasPrintFunc)(const char *, ...);
 
 UNITY_INTERFACE_EXPORT xatlasAtlas *  UNITY_INTERFACE_API xatlasCreate();
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasDestroy(xatlasAtlas *atlas);
+void 
+ UNITY_INTERFACE_API  xatlasDestroy(xatlasAtlas *atlas);
 xatlasAddMeshError UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddMesh(xatlasAtlas *atlas, const xatlasMeshDecl *meshDecl, uint32_t meshCountHint);
 void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddMeshJoin(xatlasAtlas *atlas);
 xatlasAddMeshError UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddUvMesh(xatlasAtlas *atlas, const xatlasUvMeshDecl *decl);
