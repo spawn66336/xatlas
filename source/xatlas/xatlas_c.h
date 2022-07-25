@@ -225,23 +225,22 @@ typedef void (*xatlasFreeFunc)(void *);
 typedef int (*xatlasPrintFunc)(const char *, ...);
 
 UNITY_INTERFACE_EXPORT xatlasAtlas *  UNITY_INTERFACE_API xatlasCreate();
-void 
- UNITY_INTERFACE_API  xatlasDestroy(xatlasAtlas *atlas);
-xatlasAddMeshError UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddMesh(xatlasAtlas *atlas, const xatlasMeshDecl *meshDecl, uint32_t meshCountHint);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddMeshJoin(xatlasAtlas *atlas);
-xatlasAddMeshError UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API  xatlasAddUvMesh(xatlasAtlas *atlas, const xatlasUvMeshDecl *decl);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasComputeCharts(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasPackCharts(xatlasAtlas *atlas, const xatlasPackOptions *packOptions);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasGenerate(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions, const xatlasPackOptions *packOptions);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasSetProgressCallback(xatlasAtlas *atlas, xatlasProgressFunc progressFunc, void *progressUserData);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasSetAlloc(xatlasReallocFunc reallocFunc, xatlasFreeFunc freeFunc);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasSetPrint(xatlasPrintFunc print, bool verbose);
+UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API  xatlasDestroy(xatlasAtlas *atlas);
+UNITY_INTERFACE_EXPORT xatlasAddMeshError  UNITY_INTERFACE_API  xatlasAddMesh(xatlasAtlas *atlas, const xatlasMeshDecl *meshDecl, uint32_t meshCountHint);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API  xatlasAddMeshJoin(xatlasAtlas *atlas);
+UNITY_INTERFACE_EXPORT xatlasAddMeshError  UNITY_INTERFACE_API  xatlasAddUvMesh(xatlasAtlas *atlas, const xatlasUvMeshDecl *decl);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasComputeCharts(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasPackCharts(xatlasAtlas *atlas, const xatlasPackOptions *packOptions);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasGenerate(xatlasAtlas *atlas, const xatlasChartOptions *chartOptions, const xatlasPackOptions *packOptions);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasSetProgressCallback(xatlasAtlas* atlas, xatlasProgressFunc progressFunc, void* progressUserData);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasSetAlloc(xatlasReallocFunc reallocFunc, xatlasFreeFunc freeFunc);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasSetPrint(xatlasPrintFunc print, bool verbose);
 UNITY_INTERFACE_EXPORT const char *  UNITY_INTERFACE_API xatlasAddMeshErrorString(xatlasAddMeshError error);
 UNITY_INTERFACE_EXPORT const char *  UNITY_INTERFACE_API xatlasProgressCategoryString(xatlasProgressCategory category);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasMeshDeclInit(xatlasMeshDecl *meshDecl);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasUvMeshDeclInit(xatlasUvMeshDecl *uvMeshDecl);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasChartOptionsInit(xatlasChartOptions *chartOptions);
-void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API xatlasPackOptionsInit(xatlasPackOptions *packOptions);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasMeshDeclInit(xatlasMeshDecl *meshDecl);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasUvMeshDeclInit(xatlasUvMeshDecl *uvMeshDecl);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasChartOptionsInit(xatlasChartOptions *chartOptions);
+UNITY_INTERFACE_EXPORT void  UNITY_INTERFACE_API xatlasPackOptionsInit(xatlasPackOptions *packOptions);
 
 #ifdef __cplusplus
 } // extern "C"

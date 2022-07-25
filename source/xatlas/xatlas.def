@@ -1,0 +1,23 @@
+; file used by Visual Studio plugin builds, mostly for 32-bit
+; to stop mangling our exported function names
+
+LIBRARY
+
+EXPORTS
+	xatlasCreate
+	xatlasDestroy
+	xatlasAddMesh
+	xatlasAddMeshJoin
+	xatlasAddUvMesh
+	xatlasComputeCharts
+	xatlasPackCharts
+	xatlasGenerate
+	xatlasSetProgressCallback
+	xatlasSetAlloc
+	xatlasSetPrint
+	xatlasAddMeshErrorString
+	xatlasProgressCategoryString
+	xatlasMeshDeclInit
+	xatlasUvMeshDeclInit
+	xatlasChartOptionsInit
+	xatlasPackOptionsInit
